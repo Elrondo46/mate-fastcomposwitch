@@ -1,0 +1,78 @@
+#!/usr/bin/python
+import notify2
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+from gi.repository import Gio
+from gi.repository import Gtk as gtk, AppIndicator3 as appindicator
+
+
+grep_status = Gio.Settings.new("org.mate.Marco.general")
+indicator = appindicator.Indicator.new("customtray", "mate-fast-composwitch-active",
+                                           appindicator.IndicatorCategory.APPLICATION_STATUS)
+
+
+def main():
+    status_icon = grep_status.get_value("compositing-manager").unpack()
+    indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+    indicator.set_menu(menu())
+    if not status_icon:
+        indicator.set_icon_full("mate-fast-composwitch-inactive", "when inactive")
+    gtk.main()
+
+
+def value_change(compo, booli):
+
+    grep_status.set_boolean(compo, booli)
+
+
+def menu():
+    main_menu = gtk.Menu()
+
+    command_one = gtk.MenuItem.new_with_label('Enable Compositing')
+    command_one.connect('activate', engage)
+    main_menu.append(command_one)
+    command_two = gtk.MenuItem.new_with_label('Disable Compositing')
+    command_two.connect('activate', disengage)
+    main_menu.append(command_two)
+    command_three = gtk.MenuItem.new_with_label('About')
+    command_three.connect('activate', about)
+    main_menu.append(command_three)
+    exit_tray = gtk.MenuItem.new_with_label('Exit Tool')
+    exit_tray.connect('activate', exit_app)
+    main_menu.append(exit_tray)
+
+    main_menu.show_all()
+    return main_menu
+
+
+def send_message(title, message):
+    notify2.init("Test")
+    notice = notify2.Notification(title, message, icon="mate-fast-composwitch-active")
+    notice.set_urgency(2)
+    notice.set_timeout(10000)
+    notice.show()
+    return
+
+
+def engage(_):
+    value_change("compositing-manager", True)
+    send_message("Mate FastCompoSwitch", "Compositing Enabled")
+    indicator.set_icon_full("mate-fast-composwitch-active", "when active")
+
+
+def disengage(_):
+    value_change("compositing-manager", False)
+    send_message("Mate FastCompoSwitch", "Compositing Disabled")
+    indicator.set_icon_full("mate-fast-composwitch-inactive", "when inactive")
+
+def about(_):
+    send_message("Mate FastCompoSwitch", "Version: 0.9\n Created by Baba Orhum\n 2020")
+
+
+def exit_app(_):
+    gtk.main_quit()
+
+
+if __name__ == "__main__":
+    main()
