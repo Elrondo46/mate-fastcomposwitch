@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=0.9
+Name=Mate FastCompoSwitch
+Type=Application
+Comment=Compositor or not with a simple systray icon
+Terminal=false
+Exec=/usr/bin/marcosystray
+Icon=mate-fast-composwitch-active
+StartupNotify=true
+Categories=Settings;
+GenericName=Mate FastCompoSwitch
+Keywords=compositor
